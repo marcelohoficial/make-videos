@@ -3,14 +3,28 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 export function AuthForm() {
   const form = useForm();
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data);
+  const handleSubmit = form.handleSubmit(async (data) => {
+    try {
+      await signIn("email", { email: data.email, redirect: false });
+
+      toast({
+        title: "Magic Link Sent",
+        description: "Check your email for the magic link to login",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again",
+      });
+    }
   });
 
   return (
