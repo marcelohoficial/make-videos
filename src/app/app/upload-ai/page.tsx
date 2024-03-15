@@ -1,3 +1,4 @@
+import { FormVideo } from "@/components/form-video/page";
 import { Header } from "@/components/interface/header";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
-import { MagicWandIcon, UploadIcon, VideoIcon } from "@radix-ui/react-icons";
+import { MagicWandIcon } from "@radix-ui/react-icons";
 
 export default function UploadAI() {
   return (
@@ -32,44 +33,7 @@ export default function UploadAI() {
           id="sidebar"
           className="flex w-1/4 border-l flex-col space-y-6 p-4"
         >
-          <form className="space-y-6">
-            <label
-              htmlFor="video"
-              className="border flex rounded-md aspect-video cursor-pointer 
-                border-dashed text-sm flex-col items-center justify-center text-muted-foreground 
-                hover:bg-primary/5
-              "
-            >
-              <VideoIcon className="size-4" />
-              Selecione um vídeo
-            </label>
-            <input
-              type="file"
-              name="video"
-              id="video"
-              accept="video/mp4"
-              className="sr-only"
-            />
-
-            <Separator />
-
-            <div className="space-y-2">
-              <Label htmlFor="transcription_prompt">
-                Prompt de transcrição
-              </Label>
-              <Textarea
-                id="transcription_prompt"
-                className="h-20 leading-relaxed resize-none"
-                placeholder="Inclua palavras-chave mencionadas no vídeo separadas por vírgula [,]"
-              />
-            </div>
-
-            <Button className="w-full gap-2">
-              Carregar vídeo
-              <UploadIcon className="size-4" />
-            </Button>
-          </form>
-
+          <FormVideo />
           <Separator />
           <form className="space-y-6">
             <div className="space-y-2">
