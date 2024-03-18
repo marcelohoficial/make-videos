@@ -1,5 +1,6 @@
 import { FormVideo } from "@/components/form-video/page";
 import { Header } from "@/components/interface/header";
+import { PromptSelect } from "@/components/prompt-select/page";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -38,17 +39,7 @@ export default function UploadAI() {
           <form className="space-y-6">
             <div className="space-y-2">
               <Label>Prompt</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um prompt" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="title">Título do YouTube</SelectItem>
-                  <SelectItem value="description">
-                    Descrição do YouTube
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <PromptSelect />
               <span className="block text-xs text-muted-foreground italic">
                 Você poderá customizar essa opção em breve
               </span>

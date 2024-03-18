@@ -10,10 +10,27 @@ import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
 import { toast } from "../ui/use-toast";
 
+type statusT =
+  | "awaiting"
+  | "converting"
+  | "uploading"
+  | "generating"
+  | "success"
+  | "error";
+
+const statusMessages = {
+  converting: "Convertendo...",
+  generating: "Transcrevendo...",
+  uploading: "Carregando...",
+  error: "Erro...",
+  success: "Sucesso!",
+};
+
 export function FormVideo() {
-  const [uploading, setUploading] = useState<boolean>(false);
+  const [status, setStatus] = useState<statusT>("awaiting");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
+  const resultTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
   function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
     const { files } = event.currentTarget;
@@ -83,7 +100,7 @@ export function FormVideo() {
       return;
     }
 
-    setUploading(true);
+    setStatus("uploading");
 
     const formVideo = new FormData();
     formVideo.append("file", videoFile);
@@ -117,9 +134,11 @@ export function FormVideo() {
       return;
     }
 
-    //Converter o vídeo em áudio
-    //OPEN AI só cabe arquivos de 25MB
+    setStatus("converting");
+
     const audioFile = await convertVideoToAudio(videoFile);
+
+    setStatus("uploading");
 
     const formAudio = new FormData();
     formAudio.append("file", audioFile);
@@ -128,8 +147,9 @@ export function FormVideo() {
       method: "POST",
       body: formAudio,
     })
-      .then((response) => response.json())
-      .then(() => {
+      .then((response) => {
+        const data = response.json();
+
         toast({
           title: "Success",
           description: "Upload finished",
@@ -142,29 +162,41 @@ export function FormVideo() {
         });
       });
 
-    //FAZER CHAMADA DE TRANSCRIPTION
+    if (!prompt?.length) {
+      toast({
+        title: "Error",
+        description: "An error occurred on prompt.",
+      });
+
+      return;
+    }
+
+    setStatus("generating");
+
     fetch(`/api/transcription/${uploadedVideo.id}`, {
       method: "POST",
-      body: {
-        prompt,
-      },
+      body: prompt,
     })
-      .then((response) => response.json())
-      .then(() => {
+      .then((response) => {
+        const data = response.json();
+
         toast({
           title: "Success",
-          description: "Upload finished",
+          description: "Transcription as finished",
         });
+        console.log(data);
+        setStatus("success");
       })
       .catch((error) => {
         toast({
           title: "Error",
-          description: error || "An error occurred on upload. Please try again",
+          description:
+            error || "An error occurred on transcription. Please try again",
         });
+        setStatus("error");
       })
       .finally(() => {
         setVideoFile(null);
-        setUploading(false);
       });
   }
 
@@ -218,19 +250,21 @@ export function FormVideo() {
       </div>
 
       <Button
+        data-success={status === "success"}
+        data-error={status === "error"}
         type="submit"
-        className="w-full gap-2"
-        disabled={!previewURL || uploading}
+        className="w-full gap-2 data-[success=true]:bg-emerald-400 data-[error=true]:bg-red-500"
+        disabled={!previewURL || status !== "awaiting"}
       >
-        {uploading ? (
-          <>
-            Carregando
-            <RocketIcon className="size-4 animate-pulse" />
-          </>
-        ) : (
+        {status !== "awaiting" ? (
           <>
             Carregar vídeo
             <UploadIcon className="size-4" />
+          </>
+        ) : (
+          <>
+            {status !== "awaiting" && statusMessages[status]}
+            <RocketIcon className="size-4 animate-pulse" />
           </>
         )}
       </Button>

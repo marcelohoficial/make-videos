@@ -15,17 +15,23 @@ export async function POST({ body, url }: Request) {
   let [, videoId] = url.split("transcription/");
 
   try {
-    const validVideoId = VideoIdSchema.parse(videoId as string);
-
+    VideoIdSchema.parse(videoId as string);
     const { prompt } = RequestBodySchema.parse(JSON.parse(data));
 
     const video = await prisma.video.findUniqueOrThrow({
       where: {
-        id: data,
+        id: videoId,
       },
     });
 
-    const videoPath = video.path;
+    const [, format] = video.name.split(".");
+
+    if (format !== "mp3") {
+      throw new Error("Error on format file");
+    }
+
+    const videoPath = "".concat("./public/", video.path);
+
     const audioReadStream = createReadStream(videoPath);
 
     const response = await openai.audio.transcriptions.create({
@@ -37,7 +43,16 @@ export async function POST({ body, url }: Request) {
       prompt,
     });
 
-    return Response.json(response);
+    await prisma.video.update({
+      where: {
+        id: videoId,
+      },
+      data: {
+        transcription: response.text,
+      },
+    });
+
+    return Response.json({ transcription: response.text });
   } catch (error) {
     return Response.json({ error: "Error transcription create" });
   }
