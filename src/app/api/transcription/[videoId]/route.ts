@@ -12,25 +12,21 @@ const RequestBodySchema = z.object({
 
 export async function POST({ body, url }: Request) {
   const data = await streamToString(body);
-  let [, videoId] = url.split("transcription/");
+  const [, audioId] = url.split("transcription/");
+  const { prompt, videoId } = JSON.parse(data);
 
   try {
-    VideoIdSchema.parse(videoId as string);
-    const { prompt } = RequestBodySchema.parse(JSON.parse(data));
-
-    const video = await prisma.video.findUniqueOrThrow({
+    const audio = await prisma.video.findUniqueOrThrow({
       where: {
-        id: videoId,
+        id: audioId,
       },
     });
 
-    const [, format] = video.name.split(".");
+    const [, format] = audio.name.split(".");
 
-    if (format !== "mp3") {
-      throw new Error("Error on format file");
-    }
+    if (format !== "mp3") throw new Error("Error on format file");
 
-    const videoPath = "".concat("./public/", video.path);
+    const videoPath = "".concat("./public/", audio.path);
 
     const audioReadStream = createReadStream(videoPath);
 

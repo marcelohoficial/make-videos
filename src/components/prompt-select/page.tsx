@@ -10,12 +10,16 @@ import {
 } from "../ui/select";
 
 interface PromptI {
-  id: String;
-  title: String;
-  template: String;
+  id: string;
+  title: string;
+  template: string;
 }
 
-export function PromptSelect() {
+interface PromptSelectProps {
+  onPromptSelected: (template: string) => void;
+}
+
+export function PromptSelect(props: PromptSelectProps) {
   const [prompts, setPrompts] = useState<PromptI[]>([]);
 
   useEffect(() => {
@@ -24,20 +28,39 @@ export function PromptSelect() {
     })
       .then((response) => {
         const data: any = response.json();
+        return data;
+      })
+      .then((data) => {
         setPrompts(data);
       })
       .catch((error) => {
         console.log(error);
       });
   }, []);
+
+  function handlePromptSelected(promptId: string) {
+    const selectedPrompt = prompts.find((prompt) => prompt.id === promptId);
+
+    if (!selectedPrompt) return;
+
+    props.onPromptSelected(selectedPrompt.template);
+  }
+
   return (
-    <Select>
+    <Select onValueChange={handlePromptSelected}>
       <SelectTrigger>
         <SelectValue placeholder="Selecione um prompt" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="title">Título do YouTube</SelectItem>
-        <SelectItem value="description">Descrição do YouTube</SelectItem>
+        {prompts.map((prompt) => (
+          <SelectItem key={prompt.id} value={prompt.id}>
+            {prompt.title}
+          </SelectItem>
+        )) || (
+          <SelectItem value="empty" disabled>
+            Nenhum prompt
+          </SelectItem>
+        )}
       </SelectContent>
     </Select>
   );

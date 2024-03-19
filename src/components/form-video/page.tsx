@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { RocketIcon, UploadIcon, VideoIcon } from "@radix-ui/react-icons";
@@ -26,11 +27,14 @@ const statusMessages = {
   success: "Sucesso!",
 };
 
-export function FormVideo() {
+interface FormVideoI {
+  onVideoUploaded: (videoId: string) => void;
+}
+
+export function FormVideo(props: FormVideoI) {
   const [status, setStatus] = useState<statusT>("awaiting");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
-  const resultTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
   function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
     const { files } = event.currentTarget;
@@ -105,31 +109,14 @@ export function FormVideo() {
     const formVideo = new FormData();
     formVideo.append("file", videoFile);
 
-    const uploadedVideo = await fetch("/api/upload-file", {
-      method: "POST",
-      body: formVideo,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        toast({
-          title: "Success",
-          description: "Upload finished",
-        });
-
-        return data;
-      })
-      .catch((error) => {
-        toast({
-          title: "Error",
-          description: error || "An error occurred on upload. Please try again",
-        });
-      });
+    const uploadedVideo = (await api.post("/upload-file", formVideo)).data;
 
     if (!uploadedVideo.id) {
       toast({
         title: "Error",
         description: "An error occurred on upload vídeo.",
       });
+      setStatus("error");
 
       return;
     }
@@ -143,24 +130,7 @@ export function FormVideo() {
     const formAudio = new FormData();
     formAudio.append("file", audioFile);
 
-    fetch("/api/upload-file", {
-      method: "POST",
-      body: formAudio,
-    })
-      .then((response) => {
-        const data = response.json();
-
-        toast({
-          title: "Success",
-          description: "Upload finished",
-        });
-      })
-      .catch((error) => {
-        toast({
-          title: "Error",
-          description: error || "An error occurred on upload. Please try again",
-        });
-      });
+    const audioVideo = (await api.post("/upload-file", formAudio)).data;
 
     if (!prompt?.length) {
       toast({
@@ -171,33 +141,28 @@ export function FormVideo() {
       return;
     }
 
+    if (!audioVideo.id) {
+      toast({
+        title: "Error",
+        description: "An error occurred on upload vídeo.",
+      });
+
+      setStatus("error");
+
+      return;
+    }
+
     setStatus("generating");
 
-    fetch(`/api/transcription/${uploadedVideo.id}`, {
-      method: "POST",
-      body: prompt,
-    })
-      .then((response) => {
-        const data = response.json();
+    (
+      await api.post(`/transcription/${audioVideo.id}`, {
+        prompt,
+        videoId: uploadedVideo.id,
+      })
+    ).data;
 
-        toast({
-          title: "Success",
-          description: "Transcription as finished",
-        });
-        console.log(data);
-        setStatus("success");
-      })
-      .catch((error) => {
-        toast({
-          title: "Error",
-          description:
-            error || "An error occurred on transcription. Please try again",
-        });
-        setStatus("error");
-      })
-      .finally(() => {
-        setVideoFile(null);
-      });
+    props.onVideoUploaded(uploadedVideo.id);
+    setStatus("success");
   }
 
   const previewURL = useMemo(() => {
@@ -245,6 +210,7 @@ export function FormVideo() {
           id="transcription_prompt"
           className="h-24 leading-relaxed resize-none"
           placeholder="Inclua palavras-chave mencionadas no vídeo separadas por vírgula [,]"
+          value="ensaiando"
           ref={promptInputRef}
         />
       </div>
@@ -256,14 +222,14 @@ export function FormVideo() {
         className="w-full gap-2 data-[success=true]:bg-emerald-400 data-[error=true]:bg-red-500"
         disabled={!previewURL || status !== "awaiting"}
       >
-        {status !== "awaiting" ? (
+        {status === "awaiting" ? (
           <>
             Carregar vídeo
             <UploadIcon className="size-4" />
           </>
         ) : (
           <>
-            {status !== "awaiting" && statusMessages[status]}
+            {statusMessages[status]}
             <RocketIcon className="size-4 animate-pulse" />
           </>
         )}

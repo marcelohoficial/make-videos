@@ -1,3 +1,9 @@
+"use client";
+
+import { MagicWandIcon } from "@radix-ui/react-icons";
+import { useCompletion } from "ai/react";
+import { useState } from "react";
+
 import { FormVideo } from "@/components/form-video/page";
 import { Header } from "@/components/interface/header";
 import { PromptSelect } from "@/components/prompt-select/page";
@@ -13,9 +19,29 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
-import { MagicWandIcon } from "@radix-ui/react-icons";
 
 export default function UploadAI() {
+  const [temperature, setTemperature] = useState(0.5);
+  const [videoId, setVideoId] = useState<string | null>(null);
+
+  const {
+    input,
+    setInput,
+    handleInputChange,
+    handleSubmit,
+    completion,
+    isLoading,
+  } = useCompletion({
+    api: "http://localhost:3000/api/ai/complete",
+    body: {
+      videoId,
+      temperature,
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
   return (
     <main className="flex flex-col min-h-screen min-w-full">
       <Header />
@@ -24,22 +50,28 @@ export default function UploadAI() {
           <Textarea
             className="resize-none p-4 leading-relaxed"
             placeholder="Inclua o prompt para a IA..."
+            value={input}
+            onChange={handleInputChange}
           />
           <Textarea
             className="resize-none p-4 leading-relaxed"
             placeholder="Resultado gerado pela IA..."
+            value={completion}
+            readOnly
           />
         </div>
         <aside
           id="sidebar"
           className="flex w-1/4 border-l flex-col space-y-6 p-4"
         >
-          <FormVideo />
+          <FormVideo onVideoUploaded={setVideoId} />
+
           <Separator />
-          <form className="space-y-6">
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label>Prompt</Label>
-              <PromptSelect />
+              <PromptSelect onPromptSelected={setInput} />
               <span className="block text-xs text-muted-foreground italic">
                 Você poderá customizar essa opção em breve
               </span>
@@ -64,7 +96,13 @@ export default function UploadAI() {
 
             <div className="space-y-4">
               <Label>Temperatura</Label>
-              <Slider min={0} max={1} step={0.1} />
+              <Slider
+                min={0}
+                max={1}
+                step={0.1}
+                value={[temperature]}
+                onValueChange={(value) => setTemperature(value[0])}
+              />
 
               <span className="block text-xs text-muted-foreground italic">
                 Valores mais altos tendem a deixar o resultados mais criativo e
@@ -74,7 +112,7 @@ export default function UploadAI() {
 
             <Separator />
 
-            <Button className="w-full gap-2">
+            <Button disabled={isLoading} type="submit" className="w-full gap-2">
               Executar
               <MagicWandIcon className="size-4" />
             </Button>
