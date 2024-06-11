@@ -12,18 +12,17 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-
-import { CodeViewer } from "@/app/app/make-video/components/code-viewer";
-import { MaxLengthSelector } from "@/app/app/make-video/components/maxlength-selector";
-import { ModelSelector } from "@/app/app/make-video/components/model-selector";
-import { PresetActions } from "@/app/app/make-video/components/preset-actions";
-import { PresetSave } from "@/app/app/make-video/components/preset-save";
-import { PresetSelector } from "@/app/app/make-video/components/preset-selector";
-import { PresetShare } from "@/app/app/make-video/components/preset-share";
-import { TemperatureSelector } from "@/app/app/make-video/components/temperature-selector";
-import { TopPSelector } from "@/app/app/make-video/components/top-p-selector";
-import { models, types } from "@/app/app/make-video/data/models";
-import { presets } from "@/app/app/make-video/data/presets";
+import { CodeViewer } from "./components/code-viewer";
+import { MaxLengthSelector } from "./components/maxlength-selector";
+import { ModelSelector } from "./components/model-selector";
+import { PresetActions } from "./components/preset-actions";
+import { PresetSave } from "./components/preset-save";
+import { PresetSelector } from "./components/preset-selector";
+import { PresetShare } from "./components/preset-share";
+import { TemperatureSelector } from "./components/temperature-selector";
+import { TopPSelector } from "./components/top-p-selector";
+import { models, types } from "./data/models";
+import { presets } from "./data/presets";
 
 export const metadata: Metadata = {
   title: "Playground",
@@ -244,7 +243,7 @@ export default function PlaygroundPage() {
                     </TabsTrigger>
                   </TabsList>
                 </div>
-                <ModelSelector types={types} models={models} />
+                <ModelSelector models={models} types={types} />
                 <TemperatureSelector defaultValue={[0.56]} />
                 <MaxLengthSelector defaultValue={[256]} />
                 <TopPSelector defaultValue={[0.9]} />

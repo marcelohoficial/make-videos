@@ -9,9 +9,9 @@ export async function getFFmpeg() {
 
   if (!ffmpeg.loaded) {
     await ffmpeg.load({
-      core: "/ffmpeg-core.js",
-      wasm: "/ffmpeg-core.wasm",
-      worker: "/ffmpeg-worker.js",
+      coreURL: "/ffmpeg-core.js",
+      wasmURL: "/ffmpeg-core.wasm",
+      workerURL: "/ffmpeg-worker.js",
     });
   }
 

@@ -53,7 +53,7 @@ export function AuthForm() {
       </form>
       <footer className="mt-auto pb-10 text-center space-y-2">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Don't have an account?
+          {`Dont&apos;t have a account?`}
           <Link className="underline" href={"/app"}>
             Sign up
           </Link>

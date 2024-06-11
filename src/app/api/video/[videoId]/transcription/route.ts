@@ -38,5 +38,5 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
   //   // Se houver erros de validação, retorne uma resposta de erro
   //   res.status(400).json({ error: "Error transcription create" });
   // }
-  return [];
+  return undefined;
 }
