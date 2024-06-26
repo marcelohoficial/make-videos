@@ -31,9 +31,9 @@ export function AuthForm() {
     <div className="flex flex-col min-h-screen">
       <header className="py-10 text-center">
         <div className="mx-auto max-w-3xl space-y-2">
-          <h1 className="text-4xl font-bold">Welcome to the Example App</h1>
+          <h1 className="text-4xl font-bold">Make Videos</h1>
           <p className="text-gray-500 dark:text-gray-400">
-            Enter your email to sign in or create an account
+            Transcribe videos with AI
           </p>
         </div>
       </header>
@@ -53,7 +53,7 @@ export function AuthForm() {
       </form>
       <footer className="mt-auto pb-10 text-center space-y-2">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Don't have an account?
+          {`Dont&apos;t have a account?`}
           <Link className="underline" href={"/app"}>
             Sign up
           </Link>
