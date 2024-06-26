@@ -3,12 +3,17 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { auth } from "@/services/auth";
 
-export function Header(children?: any) {
+export async function Header(children?: any) {
+  const data = await auth();
+
   return (
     <main className="w-full h-14 border-b px-6 py-3 flex items-center justify-between">
-      <h1 className="text-xl font-bold">upload.ai</h1>
-      <p className="text-sm text-muted-foreground">Teste 123</p>
+      <h1 className="text-xl font-bold">uPload.AI</h1>
+      <p className="text-sm text-muted-foreground">
+        {data?.user.name || "user"}
+      </p>
     </main>
   );
 }
